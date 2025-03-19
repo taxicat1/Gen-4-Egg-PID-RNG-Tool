@@ -5,6 +5,13 @@
 
 #include "input_tool.h"
 
+static void clearRemainingLine() {
+	int end;
+	do {
+		end = fgetc(stdin);
+	} while (end != EOF && end != '\n');
+}
+
 int inputReadInt(const char* prompt, int min, int max) {
 	char intbuf[16];
 	
@@ -23,10 +30,7 @@ int inputReadInt(const char* prompt, int min, int max) {
 		
 		int len = strlen(intbuf);
 		if (len > 0 && intbuf[len-1] != '\n') {
-			int end;
-			do {
-				end = fgetc(stdin);
-			} while (end != EOF && end != '\n');
+			clearRemainingLine();
 		}
 		
 		result = strtol(intbuf, NULL, 10);
@@ -53,10 +57,7 @@ uint32_t inputReadU32Hex(const char* prompt) {
 		
 		int len = strlen(hexbuf);
 		if (len > 0 && hexbuf[len-1] != '\n') {
-			int end;
-			do {
-				end = fgetc(stdin);
-			} while (end != EOF && end != '\n');
+			clearRemainingLine();
 		}
 		
 		//result = strtoul(hexbuf, &outPtr, 16);
@@ -64,15 +65,16 @@ uint32_t inputReadU32Hex(const char* prompt) {
 		// Use manual traversal instead to not silently ignore non-hex. stupid strtoul
 		result = 0;
 		for (int i = 0; i < len; i++) {
-			int nybble;
+			unsigned int nybble;
+			char c = hexbuf[i];
 			
-			if (hexbuf[i] >= '0' && hexbuf[i] <= '9') {
-				nybble = hexbuf[i] - '0';
-			} else if (hexbuf[i] >= 'a' && hexbuf[i] <= 'f') {
-				nybble = hexbuf[i] - 'a' + 0xa;
-			} else if (hexbuf[i] >= 'A' && hexbuf[i] <= 'F') {
-				nybble = hexbuf[i] - 'A' + 0xa;
-			} else if (hexbuf[i] == '\n') {
+			if (c >= '0' && c <= '9') {
+				nybble = c - '0';
+			} else if (c >= 'a' && c <= 'f') {
+				nybble = c - 'a' + 0xa;
+			} else if (c >= 'A' && c <= 'F') {
+				nybble = c - 'A' + 0xa;
+			} else if (c == '\n') {
 				break;
 			} else {
 				errno = 1;
