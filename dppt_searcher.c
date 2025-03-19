@@ -87,6 +87,11 @@ int dpptPidSearch(uint32_t target_pid, int international) {
 	dppt_manip_details match_found = { 0, 0, 0, 0.0 };
 	
 	uint32_t target_mtout = pidPrepare(target_pid, international);
+	if (target_mtout == 0x00000000) {
+		printf("This PID is invalid!\n");
+		printf("An initial egg PID of 00000000 is interpreted by the game as no egg available\n");
+		return 1;
+	}
 	
 	uint32_t* mt = mtGetBuf();
 	dppt_manip_details this_manip;
@@ -102,7 +107,7 @@ int dpptPidSearch(uint32_t target_pid, int international) {
 						
 						int frame = this_manip.coin_flips + (this_manip.double_taps * 12);
 						if (frame >= mtLen) {
-							break;
+							goto multiLoopBreak;
 						}
 						
 						if (mt[frame] == target_mtout) {
@@ -116,6 +121,9 @@ int dpptPidSearch(uint32_t target_pid, int international) {
 						}
 					}
 				}
+				
+			multiLoopBreak:
+				(void)0;
 			}
 		}
 		
@@ -124,7 +132,7 @@ int dpptPidSearch(uint32_t target_pid, int international) {
 			break;
 		}
 		
-		if (vsync_year == delay_steps[2] && match_found.effort != 0.0) {
+		if (vsync_year >= delay_steps[2] && match_found.effort != 0.0) {
 			break;
 		}
 	}
