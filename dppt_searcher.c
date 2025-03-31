@@ -97,7 +97,8 @@ int dpptPidSearch(uint32_t target_pid, int international) {
 	dppt_manip_details this_manip;
 	for (uint32_t vsync_year = delay_steps[0]; vsync_year < delay_steps[3]; vsync_year++) {
 		for (uint32_t hour = 0x00000000; hour < (24*0x00010000); hour += 0x00010000) {
-			for (uint32_t month_day_minute_second = 0x01000000; month_day_minute_second != 0x00000000; month_day_minute_second += 0x01000000) {
+			uint32_t month_day_minute_second = 0x00000000;
+			do {
 				
 				this_manip.seed = month_day_minute_second + hour + vsync_year;
 				mtSrand(this_manip.seed);
@@ -122,9 +123,11 @@ int dpptPidSearch(uint32_t target_pid, int international) {
 					}
 				}
 				
+				
 			multiLoopBreak:
 				(void)0;
-			}
+			
+			} while ((month_day_minute_second += 0x01000000) != 0x00000000);
 		}
 		
 		// Quit early if we have a match within the return delay bound
